@@ -1,0 +1,36 @@
+{
+  "name": "rng-with-intention",
+  "version": "0.1.0",
+  "description": "A random number generator that uses human intention as a seed, designed for divination and contemplative practices",
+  "main": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  },
+  "keywords": [
+    "random",
+    "rng",
+    "intention",
+    "divination",
+    "tarot",
+    "contemplative",
+    "seed"
+  ],
+  "author": "Todd Wilson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/w8s/rng-with-intention.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
