@@ -103,6 +103,46 @@ Draw multiple random numbers with a single intention.
 - **Journaling** - Daily prompts seeded by your current state
 - **Decision making** - When you need the universe to weigh in
 
+### Tarot Reading Example
+
+```javascript
+rngi.drawMultiple("Celtic Cross-- What is the universe needing to observe right now?", 78, 10, false);
+{
+  indices: [
+    72, 56, 43, 46, 77,
+    30, 64, 10, 44,  9
+  ],
+  timestamp: '2026-01-11T00:33:32.225Z'
+}
+```
+
+Using standard Rider-Waite-Smith (RWS) ordering (0-77):
+
+| Position | Meaning            | Index | Card              |
+| -------: | ------------------ | :---: | ----------------- |
+|        1 | Present situation  |  72   | Nine of Pentacles |
+|        2 | Challenge/crossing |  56   | Ten of Swords     |
+|        3 | Foundation/root    |  43   | Eight of Cups     |
+|        4 | Recent past        |  46   | Page of Swords    |
+|        5 | Crown/best outcome |  77   | King of Pentacles |
+|        6 | Near future        |  30   | Five of Wands     |
+|        7 | Self/attitude      |  64   | Ace of Pentacles  |
+|        8 | Environment/others |  10   | Wheel of Fortune  |
+|        9 | Hopes/fears        |  44   | Ten of Cups       |
+|       10 | Outcome            |   9   | The Hermit        |
+
+## Sample Read
+
+- Heavy Pentacles energy (4 cards) - material world, manifestation, resources
+- Two Tens (completion, cycles ending)
+- The question "what does the universe need to observe" with The Hermit as outcome feels *very* intentional
+
+The universe is watching someone in self-sufficient abundance (Nine of Pentacles) face a painful ending (Ten of Swords crossing). The foundation is walking away from what no longer serves (Eight of Cups).
+
+Through conflict/competition (Five of Wands ahead), while holding new material potential (Ace of Pentacles) and experiencing major turning points (Wheel of Fortune in environment), there's a tension between hoping for/fearing emotional fulfillment (Ten of Cups).
+
+The universe's observation point (The Hermit outcome): This is about witnessing someone's journey to solitary wisdom. The universe needs to observe the process of someone learning to be alone with their truth.
+
 ## How It Works
 
 1. You provide an intention (any string)
