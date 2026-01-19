@@ -10,9 +10,17 @@ const isNode = typeof process !== 'undefined' &&
 
 // Lazy-load Node crypto only when needed
 let nodeCrypto = null;
+let nodeCryptoLoadAttempted = false;
+
 async function getNodeCrypto() {
-  if (!nodeCrypto && isNode) {
-    nodeCrypto = await import('crypto');
+  if (!nodeCryptoLoadAttempted && isNode) {
+    nodeCryptoLoadAttempted = true;
+    try {
+      nodeCrypto = await import('crypto');
+    } catch (e) {
+      // Crypto module not available (browser environment masquerading as Node)
+      nodeCrypto = null;
+    }
   }
   return nodeCrypto;
 }
@@ -24,15 +32,23 @@ async function getNodeCrypto() {
  */
 export async function randomBytes(size) {
   if (isNode) {
-    // Node.js / Electron environment
+    // Try Node.js / Electron environment
     const crypto = await getNodeCrypto();
-    return crypto.randomBytes(size);
-  } else {
-    // Browser environment (mobile)
-    const bytes = new Uint8Array(size);
-    crypto.getRandomValues(bytes);
-    return bytes;
+    if (crypto) {
+      return crypto.randomBytes(size);
+    }
   }
+  
+  // Browser environment (mobile) - fallback
+  const bytes = new Uint8Array(size);
+  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+    window.crypto.getRandomValues(bytes);
+  } else if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+  } else {
+    throw new Error('No crypto implementation available');
+  }
+  return bytes;
 }
 
 /**
@@ -42,15 +58,25 @@ export async function randomBytes(size) {
  */
 export async function sha256(data) {
   if (isNode) {
-    // Node.js / Electron environment
+    // Try Node.js / Electron environment
     const crypto = await getNodeCrypto();
-    return crypto.createHash('sha256').update(data).digest();
-  } else {
-    // Browser environment (mobile)
-    const encoder = new TextEncoder();
-    const dataBuffer = encoder.encode(data);
+    if (crypto) {
+      return crypto.createHash('sha256').update(data).digest();
+    }
+  }
+  
+  // Browser environment (mobile) - fallback
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data);
+  
+  if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', dataBuffer);
+    return new Uint8Array(hashBuffer);
+  } else if (typeof crypto !== 'undefined' && crypto.subtle) {
     const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
     return new Uint8Array(hashBuffer);
+  } else {
+    throw new Error('No crypto implementation available');
   }
 }
 

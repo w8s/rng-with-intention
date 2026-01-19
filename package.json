@@ -1,6 +1,6 @@
 {
   "name": "rng-with-intention",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A random number generator that uses human intention as a seed, designed for divination and contemplative practices",
   "main": "src/index.js",
   "type": "module",
