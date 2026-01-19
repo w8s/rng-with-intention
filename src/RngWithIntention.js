@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { randomBytes, sha256, bytesToHex, readUInt32BE } from './crypto-polyfill.js';
 
 /**
  * RngWithIntention - A random number generator seeded by human intention
@@ -29,9 +29,9 @@ export class RngWithIntention {
    * Draw a random number based on intention
    * @param {string} intention - The user's intention (any text)
    * @param {number} max - Maximum value (exclusive, returns 0 to max-1)
-   * @returns {Object} { index: number, timestamp: string }
+   * @returns {Promise<Object>} { index: number, timestamp: string }
    */
-  draw(intention, max) {
+  async draw(intention, max) {
     if (!intention || typeof intention !== 'string') {
       throw new Error('Intention must be a non-empty string');
     }
@@ -52,19 +52,19 @@ export class RngWithIntention {
     
     if (this.options.includeEntropy) {
       // Add cryptographic randomness
-      const entropy = crypto.randomBytes(16).toString('hex');
-      seedComponents.push(entropy);
+      const entropy = randomBytes(16);
+      seedComponents.push(bytesToHex(entropy));
     }
     
     // Create seed (ephemeral - not stored)
     const seedString = seedComponents.join('::');
     
     // Hash the seed to get deterministic bytes
-    const hash = crypto.createHash('sha256').update(seedString).digest();
+    const hash = await sha256(seedString);
     
     // Convert hash bytes to a number in range [0, max)
     // Use multiple bytes to reduce modulo bias
-    const bytes = hash.readUInt32BE(0);
+    const bytes = readUInt32BE(hash, 0);
     const index = bytes % max;
     
     return {
@@ -79,9 +79,9 @@ export class RngWithIntention {
    * @param {number} max - Maximum value for each draw
    * @param {number} count - Number of values to draw
    * @param {boolean} allowDuplicates - Whether to allow the same index multiple times (default: true)
-   * @returns {Object} { indices: number[], timestamp: string }
+   * @returns {Promise<Object>} { indices: number[], timestamp: string }
    */
-  drawMultiple(intention, max, count, allowDuplicates = true) {
+  async drawMultiple(intention, max, count, allowDuplicates = true) {
     if (!Number.isInteger(count) || count <= 0) {
       throw new Error('Count must be a positive integer');
     }
@@ -97,7 +97,7 @@ export class RngWithIntention {
     for (let i = 0; i < count; i++) {
       // Modify intention slightly for each draw to ensure different results
       const modifiedIntention = `${intention}::draw${i}`;
-      const result = this.draw(modifiedIntention, max);
+      const result = await this.draw(modifiedIntention, max);
       
       if (allowDuplicates) {
         indices.push(result.index);
@@ -106,7 +106,7 @@ export class RngWithIntention {
         let attempts = 0;
         let index = result.index;
         while (used.has(index) && attempts < max * 2) {
-          const retry = this.draw(`${modifiedIntention}::retry${attempts}`, max);
+          const retry = await this.draw(`${modifiedIntention}::retry${attempts}`, max);
           index = retry.index;
           attempts++;
         }

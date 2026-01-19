@@ -1,6 +1,6 @@
 {
   "name": "rng-with-intention",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A random number generator that uses human intention as a seed, designed for divination and contemplative practices",
   "main": "src/index.js",
   "type": "module",
@@ -22,7 +22,9 @@
     "divination",
     "tarot",
     "contemplative",
-    "seed"
+    "seed",
+    "browser",
+    "mobile"
   ],
   "author": "Todd Waits",
   "license": "MIT",
