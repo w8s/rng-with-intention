@@ -8,20 +8,25 @@ const isNode = typeof process !== 'undefined' &&
                process.versions != null && 
                process.versions.node != null;
 
+// Lazy-load Node crypto only when needed
 let nodeCrypto = null;
-if (isNode) {
-  nodeCrypto = await import('crypto');
+async function getNodeCrypto() {
+  if (!nodeCrypto && isNode) {
+    nodeCrypto = await import('crypto');
+  }
+  return nodeCrypto;
 }
 
 /**
  * Get random bytes - works in both Node.js and browser
  * @param {number} size - Number of bytes to generate
- * @returns {Uint8Array} Random bytes
+ * @returns {Promise<Uint8Array>} Random bytes
  */
-export function randomBytes(size) {
-  if (isNode && nodeCrypto) {
+export async function randomBytes(size) {
+  if (isNode) {
     // Node.js / Electron environment
-    return nodeCrypto.randomBytes(size);
+    const crypto = await getNodeCrypto();
+    return crypto.randomBytes(size);
   } else {
     // Browser environment (mobile)
     const bytes = new Uint8Array(size);
@@ -36,9 +41,10 @@ export function randomBytes(size) {
  * @returns {Promise<Uint8Array>} Hash bytes
  */
 export async function sha256(data) {
-  if (isNode && nodeCrypto) {
+  if (isNode) {
     // Node.js / Electron environment
-    return nodeCrypto.createHash('sha256').update(data).digest();
+    const crypto = await getNodeCrypto();
+    return crypto.createHash('sha256').update(data).digest();
   } else {
     // Browser environment (mobile)
     const encoder = new TextEncoder();
