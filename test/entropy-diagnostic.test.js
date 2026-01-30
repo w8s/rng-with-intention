@@ -54,7 +54,7 @@ test('Entropy diagnostic', async (t) => {
     console.log('\n=== Testing randomBytes directly ===');
     const entropyValues = [];
     for (let i = 0; i < 10; i++) {
-      const bytes = randomBytes(16);
+      const bytes = await randomBytes(16);  // Now async!
       const hex = bytesToHex(bytes);
       entropyValues.push(hex);
       console.log(`Entropy ${i + 1}: ${hex}`);

@@ -1,36 +1,67 @@
 /**
  * Cross-platform crypto utilities
- * Works in both Node.js (Electron) and browser (mobile WebView) environments
+ * Works in both Node.js (Electron desktop) and browser (mobile WebView) environments
+ * 
+ * Per Node.js docs: https://nodejs.org/api/crypto.html#determining-if-crypto-support-is-unavailable
+ * ESM requires dynamic import() in try/catch to handle missing crypto module gracefully
  */
 
-import { randomBytes as nodeRandomBytes, createHash } from 'crypto';
+// Cache for Node.js crypto - only populated on desktop
+let nodeCrypto = null;
+let nodeCryptoLoadAttempted = false;
 
-// Detect environment - check if we're in a real Node.js environment
-const isNode = typeof process !== 'undefined' && 
-               process.versions != null && 
-               process.versions.node != null;
+/**
+ * Attempt to load Node.js crypto module
+ * Returns null on mobile/browser or if crypto support unavailable
+ * @returns {Promise<Object|null>}
+ */
+async function tryLoadNodeCrypto() {
+  if (nodeCryptoLoadAttempted) {
+    return nodeCrypto;
+  }
+  
+  nodeCryptoLoadAttempted = true;
+  
+  // Check if we're in Node.js environment
+  if (typeof process === 'undefined' || !process.versions || !process.versions.node) {
+    return null;
+  }
+  
+  try {
+    // Per Node.js docs: Use dynamic import() for ESM to handle missing crypto gracefully
+    // This prevents crashes on mobile where 'node:crypto' doesn't exist
+    nodeCrypto = await import('node:crypto');
+    return nodeCrypto;
+  } catch (err) {
+    // Mobile browser, or Node.js built without crypto support
+    console.warn('Node.js crypto module not available, falling back to Web Crypto API');
+    return null;
+  }
+}
 
 /**
  * Get random bytes - works in both Node.js and browser
  * @param {number} size - Number of bytes to generate
- * @returns {Uint8Array} Random bytes (always synchronous)
+ * @returns {Promise<Uint8Array>} Random bytes
  */
-export function randomBytes(size) {
-  if (isNode) {
-    // Node.js / Electron environment
-    return nodeRandomBytes(size);
+export async function randomBytes(size) {
+  // Try Node.js crypto first (desktop Electron)
+  const crypto = await tryLoadNodeCrypto();
+  if (crypto && crypto.randomBytes) {
+    return crypto.randomBytes(size);
   }
   
-  // Browser environment (mobile) - fallback
+  // Fallback to Web Crypto API (mobile browsers)
   const bytes = new Uint8Array(size);
   if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
     window.crypto.getRandomValues(bytes);
+    return bytes;
   } else if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     crypto.getRandomValues(bytes);
+    return bytes;
   } else {
     throw new Error('No crypto implementation available');
   }
-  return bytes;
 }
 
 /**
@@ -39,12 +70,13 @@ export function randomBytes(size) {
  * @returns {Promise<Uint8Array>} Hash bytes
  */
 export async function sha256(data) {
-  if (isNode) {
-    // Node.js / Electron environment - use synchronous hash
-    return createHash('sha256').update(data).digest();
+  // Try Node.js crypto first (desktop Electron)
+  const crypto = await tryLoadNodeCrypto();
+  if (crypto && crypto.createHash) {
+    return crypto.createHash('sha256').update(data).digest();
   }
   
-  // Browser environment (mobile) - use async SubtleCrypto
+  // Fallback to Web Crypto API (mobile browsers)
   const encoder = new TextEncoder();
   const dataBuffer = encoder.encode(data);
   

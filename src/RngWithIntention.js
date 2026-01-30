@@ -51,8 +51,8 @@ export class RngWithIntention {
     }
     
     if (this.options.includeEntropy) {
-      // Add cryptographic randomness
-      const entropy = randomBytes(16);
+      // Add cryptographic randomness (async for cross-platform support)
+      const entropy = await randomBytes(16);
       seedComponents.push(bytesToHex(entropy));
     }
     
