@@ -3,40 +3,22 @@
  * Works in both Node.js (Electron) and browser (mobile WebView) environments
  */
 
-// Detect environment
+import { randomBytes as nodeRandomBytes, createHash } from 'crypto';
+
+// Detect environment - check if we're in a real Node.js environment
 const isNode = typeof process !== 'undefined' && 
                process.versions != null && 
                process.versions.node != null;
 
-// Lazy-load Node crypto only when needed
-let nodeCrypto = null;
-let nodeCryptoLoadAttempted = false;
-
-async function getNodeCrypto() {
-  if (!nodeCryptoLoadAttempted && isNode) {
-    nodeCryptoLoadAttempted = true;
-    try {
-      nodeCrypto = await import('crypto');
-    } catch (e) {
-      // Crypto module not available (browser environment masquerading as Node)
-      nodeCrypto = null;
-    }
-  }
-  return nodeCrypto;
-}
-
 /**
  * Get random bytes - works in both Node.js and browser
  * @param {number} size - Number of bytes to generate
- * @returns {Promise<Uint8Array>} Random bytes
+ * @returns {Uint8Array} Random bytes (always synchronous)
  */
-export async function randomBytes(size) {
+export function randomBytes(size) {
   if (isNode) {
-    // Try Node.js / Electron environment
-    const crypto = await getNodeCrypto();
-    if (crypto) {
-      return crypto.randomBytes(size);
-    }
+    // Node.js / Electron environment
+    return nodeRandomBytes(size);
   }
   
   // Browser environment (mobile) - fallback
@@ -58,14 +40,11 @@ export async function randomBytes(size) {
  */
 export async function sha256(data) {
   if (isNode) {
-    // Try Node.js / Electron environment
-    const crypto = await getNodeCrypto();
-    if (crypto) {
-      return crypto.createHash('sha256').update(data).digest();
-    }
+    // Node.js / Electron environment - use synchronous hash
+    return createHash('sha256').update(data).digest();
   }
   
-  // Browser environment (mobile) - fallback
+  // Browser environment (mobile) - use async SubtleCrypto
   const encoder = new TextEncoder();
   const dataBuffer = encoder.encode(data);
   
