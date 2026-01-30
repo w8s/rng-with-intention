@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-01-30
+
+### Changed
+- **BREAKING CHANGE**: `randomBytes()` is now async and returns `Promise<Uint8Array>`
+  - Call sites must now use `await randomBytes(size)` instead of `randomBytes(size)`
+  - This change is required for proper mobile/browser compatibility
+
+### Fixed
+- Restored mobile compatibility by using dynamic `import()` for Node.js crypto module
+- Follows Node.js ESM best practices for optional module loading
+- Prevents crashes on mobile platforms where Node.js crypto is unavailable
+- Added comprehensive diagnostic tests for entropy generation
+
+### Added
+- GitHub Actions CI/CD workflows for automated testing and npm publishing
+- Tests now run on Node.js 18, 20, and 22
+- Entropy diagnostic test suite to validate cross-platform RNG behavior
+
 ## [0.2.2] - 2026-01-19
 
 ### Fixed
