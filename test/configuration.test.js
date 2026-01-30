@@ -47,10 +47,7 @@ test('Configuration options', async (t) => {
     // Indices likely different (but not guaranteed)
   });
 
-  // TODO: Fix entropy test - currently failing consistently
-  // This test is revealing a potential issue with entropy generation
-  // Need to investigate why duplicate values are appearing so frequently
-  await t.test('default mode includes both timestamp and entropy', { skip: true }, async () => {
+  await t.test('default mode includes both timestamp and entropy', async () => {
     const rngi = new RngWithIntention();
     
     // Test that entropy is actually being used by checking multiple draws
