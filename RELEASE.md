@@ -5,12 +5,37 @@ This document describes how to create a new release for rng-with-intention.
 ## Prerequisites
 
 - Ensure all changes are committed and pushed to `main`
-- Ensure tests pass: `npm test`
+- Ensure tests pass locally: `npm test`
 - Update CHANGELOG.md with new version section
+- Have NPM_TOKEN configured in GitHub Secrets (one-time setup)
 
-## Release Steps
+## Automated Release Steps (Recommended)
 
-### 1. Update Version
+### 1. Update Version and Push Tag
+
+```bash
+# Bump version in package.json (choose one)
+npm version patch   # 0.2.2 -> 0.2.3 (bug fixes)
+npm version minor   # 0.2.2 -> 0.3.0 (new features)
+npm version major   # 0.2.2 -> 1.0.0 (breaking changes)
+
+# Push to GitHub with tags
+git push origin main --tags
+```
+
+### 2. GitHub Actions Take Over! 🤖
+
+Once you push the tag, three automated workflows run:
+
+1. **Test Workflow** - Runs tests on Node 18, 20, 22
+2. **Publish Workflow** - Publishes to npm (if tests pass)
+3. **Release Workflow** - Creates GitHub release with auto-generated notes
+
+That's it! Everything else is automatic.
+
+## Manual Release Steps (Fallback)
+
+If automation fails or you prefer manual control:
 
 ```bash
 # Bump version in package.json (choose one)
