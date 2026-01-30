@@ -1,86 +1,65 @@
-# GitHub Actions Setup
+# GitHub Actions Setup Guide
 
-This document explains the one-time setup needed for automated publishing.
+## Automated npm Publishing Setup
 
-## Workflows
-
-This repository has three GitHub Actions workflows:
-
-### 1. Test (`test.yml`)
-- **Triggers:** Every push to `main`, every PR
-- **Purpose:** Runs `npm test` on Node 18, 20, and 22
-- **Setup Required:** None - works automatically
-
-### 2. Publish to npm (`publish.yml`)
-- **Triggers:** When you push a version tag (e.g., `v0.2.3`)
-- **Purpose:** Automatically publishes to npm after tests pass
-- **Setup Required:** NPM_TOKEN (one-time, see below)
-
-### 3. GitHub Release (`release.yml`)
-- **Triggers:** When you push a version tag (e.g., `v0.2.3`)
-- **Purpose:** Creates GitHub release with auto-generated notes
-- **Setup Required:** None - uses built-in GitHub token
-
-## One-Time Setup: NPM_TOKEN
-
-To enable automated npm publishing, you need to add your npm access token to GitHub Secrets.
+To enable automated npm publishing, you need to configure an npm access token.
 
 ### Step 1: Create npm Access Token
 
-1. Go to https://www.npmjs.com/
-2. Click your profile → Access Tokens
-3. Click "Generate New Token" → "Classic Token"
-4. Select "Automation" type
-5. Copy the token (starts with `npm_...`)
+1. Go to https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+2. Click "Generate New Token" → "Classic Token"
+3. Select type: **Automation** (for CI/CD)
+4. Copy the token (starts with `npm_...`)
 
 ### Step 2: Add Token to GitHub Secrets
 
 1. Go to https://github.com/w8s/rng-with-intention/settings/secrets/actions
 2. Click "New repository secret"
 3. Name: `NPM_TOKEN`
-4. Value: Paste the token from Step 1
+4. Value: Paste your npm token
 5. Click "Add secret"
 
-### Step 3: Test the Setup
+### Step 3: Test the Workflow
 
-1. Make a small change (e.g., update README)
-2. Run `npm version patch`
-3. Run `git push origin main --tags`
-4. Watch the Actions tab: https://github.com/w8s/rng-with-intention/actions
+After adding the secret, the next time you push a version tag, the publish workflow will automatically run:
 
-If everything works, you'll see:
-- ✅ Tests pass
-- ✅ Package published to npm
-- ✅ GitHub release created
+```bash
+npm version patch
+git push origin main --tags
+```
+
+GitHub Actions will:
+1. ✅ Run tests on Node 18, 20, 22
+2. ✅ Publish to npm if tests pass
+3. ✅ Add npm provenance (shows verified publisher)
+
+## Workflows Included
+
+### 1. CI Tests (`.github/workflows/test.yml`)
+- **Triggers**: Every push and PR to main
+- **Runs**: Tests on Node 18.x, 20.x, 22.x
+- **Purpose**: Catch bugs before they reach production
+
+### 2. npm Publishing (`.github/workflows/publish.yml`)
+- **Triggers**: When you push a version tag (v*)
+- **Runs**: Tests, then publishes to npm
+- **Purpose**: Automated, safe releases
 
 ## Security Notes
 
-- The NPM_TOKEN has "Automation" scope - it can only publish, not delete
-- The token is encrypted in GitHub Secrets
-- Only the publish workflow has access to it
-- You can revoke/rotate the token anytime at npmjs.com
+- ✅ Token is encrypted in GitHub Secrets
+- ✅ Only repository admins can view/edit secrets
+- ✅ Token is never exposed in logs
+- ✅ Provenance ensures package authenticity
+- ✅ Tests must pass before publishing
 
 ## Troubleshooting
 
-**"npm publish" fails with 403 error:**
-- Check that NPM_TOKEN is correctly set in GitHub Secrets
-- Verify the token hasn't expired
-- Ensure you have publish permissions for the package
+**Q: Publish fails with "authentication error"**  
+A: Check that NPM_TOKEN secret is set correctly in repository settings
 
-**Tests fail but local tests pass:**
-- Check that package-lock.json is committed
-- Verify Node version compatibility (18+)
-- Review the Actions logs for details
+**Q: Tests fail on specific Node version**  
+A: Update package.json engines if you want to drop support for that version
 
-**Release not created:**
-- Ensure the tag follows `v*` format (e.g., `v0.2.3`, not `0.2.3`)
-- Check that you pushed the tag: `git push --tags`
-- Verify GitHub Actions are enabled in repo settings
-
-## Benefits
-
-✅ **Consistent releases** - Same process every time  
-✅ **Tested before publish** - Catches bugs automatically  
-✅ **Time saved** - No manual npm publish steps  
-✅ **Transparency** - All actions logged publicly  
-✅ **Free** - Unlimited minutes on public repos
+**Q: Want to publish manually instead?**  
+A: Just run `npm publish` locally - the workflow won't interfere

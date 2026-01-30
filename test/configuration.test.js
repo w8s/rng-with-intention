@@ -50,14 +50,16 @@ test('Configuration options', async (t) => {
   await t.test('default mode includes both timestamp and entropy', async () => {
     const rngi = new RngWithIntention();
     
-    // Even same intention at "same" time should differ due to entropy
+    // Test that entropy is actually being used by checking multiple draws
+    // With entropy, we should see variation across many draws
     const results = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 20; i++) {
       results.push(await rngi.draw('same intention', 1000));
     }
     
-    // Check that we got at least some variation
+    // Check that we got significant variation (more robust than checking for >1 unique)
     const unique = new Set(results.map(r => r.index));
-    assert.ok(unique.size > 1, 'Should get different results due to entropy');
+    // With 20 draws from 1000 values and true randomness, getting <5 unique would be extremely unlikely
+    assert.ok(unique.size >= 5, `Should get diverse results due to entropy, got ${unique.size} unique values`);
   });
 });
