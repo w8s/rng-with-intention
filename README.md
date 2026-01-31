@@ -150,3 +150,5 @@ MIT
 ## Contributing
 
 Issues and pull requests welcome! This library aims to remain simple and focused.
+
+For development context and patterns, see [docs/AGENTS.md](./docs/AGENTS.md).
