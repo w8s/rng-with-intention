@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+# Explicit permissions following principle of least privilege
+permissions:
+  contents: read  # Read repository code
+
 jobs:
   test:
     runs-on: ubuntu-latest
