@@ -159,6 +159,58 @@ The universe's observation point (The Hermit outcome): This is about witnessing
 
 The result is randomness that feels **shaped by your intention** rather than purely mechanical.
 
+## Testing and Validation
+
+This library includes both fast unit tests and slower statistical validation scripts.
+
+### Running Tests
+
+Fast unit tests (run before every commit):
+```bash
+npm test
+```
+
+### Statistical Validation
+
+The library includes optional validation scripts to verify the statistical properties of the RNG. These are **not required for deployment** but can be run when:
+- Making changes to the shuffle algorithm
+- Investigating distribution concerns
+- Before major releases
+- For peace of mind
+
+**Coverage validation** (verifies all values are reachable):
+```bash
+npm run validate:coverage           # Quick test (3 deck sizes, ~1 second)
+npm run validate:comprehensive      # Comprehensive test (8 deck sizes, ~10 seconds)
+```
+
+**Distribution validation** (chi-square goodness-of-fit test):
+```bash
+npm run validate:distribution       # Statistical uniformity test (~30 seconds)
+npm run validate:distribution -- --draws 50000  # More thorough test
+```
+
+**Run all validations:**
+```bash
+npm run validate:all                # Coverage + distribution tests
+```
+
+The validation scripts verify different aspects of randomness:
+
+**Coverage validation** checks that all values are **reachable** (no stuck values):
+- Verifies every possible value can be drawn at least once
+- Catches: off-by-one errors, range bugs, unreachable values
+- Does NOT verify: equal probability distribution
+
+**Distribution validation** checks that all values are **equally likely** (uniform distribution):
+- Uses chi-square goodness-of-fit test
+- Catches: probability bias, non-uniform distributions
+- Note: Has ~5% false positive rate (expected statistical noise)
+
+Both tests together provide confidence that the RNG works correctly.
+
+These tests are slow because they perform thousands of draws to achieve statistical significance, which is why they're separate from the main test suite.
+
 ## License
 
 MIT

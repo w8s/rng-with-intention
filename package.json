@@ -13,7 +13,12 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "validate:distribution": "node benchmark/validate-distribution.js",
+    "validate:coverage": "node scripts/validate-coverage.js",
+    "validate:quick": "node scripts/validate-coverage.js --quick",
+    "validate:comprehensive": "node scripts/validate-coverage.js --comprehensive",
+    "validate:all": "npm run validate:coverage && npm run validate:distribution"
   },
   "keywords": [
     "random",
