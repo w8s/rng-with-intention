@@ -22,6 +22,11 @@ Digital randomness often feels hollow in spiritual or contemplative contexts bec
 npm install rng-with-intention
 ```
 
+## Requirements
+
+- Node.js >= 18.0.0
+- Works in browser and Node.js environments (uses Web Crypto API / Node crypto)
+
 ## Usage
 
 ### Basic usage
@@ -108,108 +113,35 @@ Draw multiple random numbers with a single intention.
 - **Journaling** - Daily prompts seeded by your current state
 - **Decision making** - When you need the universe to weigh in
 
-### Tarot Reading Example
+## Development
 
-```javascript
-rngi.drawMultiple("Celtic Cross-- What is the universe needing to observe right now?", 78, 10, false);
-{
-  indices: [
-    72, 56, 43, 46, 77,
-    30, 64, 10, 44,  9
-  ],
-  timestamp: '2026-01-11T00:33:32.225Z'
-}
-```
+### Testing
 
-Using standard Rider-Waite-Smith (RWS) ordering (0-77):
-
-| Position | Meaning            | Index | Card              |
-| -------: | ------------------ | :---: | ----------------- |
-|        1 | Present situation  |  72   | Nine of Pentacles |
-|        2 | Challenge/crossing |  56   | Ten of Swords     |
-|        3 | Foundation/root    |  43   | Eight of Cups     |
-|        4 | Recent past        |  46   | Page of Swords    |
-|        5 | Crown/best outcome |  77   | King of Pentacles |
-|        6 | Near future        |  30   | Five of Wands     |
-|        7 | Self/attitude      |  64   | Ace of Pentacles  |
-|        8 | Environment/others |  10   | Wheel of Fortune  |
-|        9 | Hopes/fears        |  44   | Ten of Cups       |
-|       10 | Outcome            |   9   | The Hermit        |
-
-## Sample Read
-
-- Heavy Pentacles energy (4 cards) - material world, manifestation, resources
-- Two Tens (completion, cycles ending)
-- The question "what does the universe need to observe" with The Hermit as outcome feels *very* intentional
-
-The universe is watching someone in self-sufficient abundance (Nine of Pentacles) face a painful ending (Ten of Swords crossing). The foundation is walking away from what no longer serves (Eight of Cups).
-
-Through conflict/competition (Five of Wands ahead), while holding new material potential (Ace of Pentacles) and experiencing major turning points (Wheel of Fortune in environment), there's a tension between hoping for/fearing emotional fulfillment (Ten of Cups).
-
-The universe's observation point (The Hermit outcome): This is about witnessing someone's journey to solitary wisdom. The universe needs to observe the process of someone learning to be alone with their truth.
-
-## How It Works
-
-1. You provide an intention (any string)
-2. The exact timestamp is captured (down to milliseconds)
-3. System entropy is added (cryptographic randomness)
-4. These are combined and hashed with SHA-256
-5. The hash is converted to a number in your desired range
-6. The intention is discarded (never stored)
-
-The result is randomness that feels **shaped by your intention** rather than purely mechanical.
-
-## Testing and Validation
-
-This library includes both fast unit tests and slower statistical validation scripts.
-
-### Running Tests
-
-Fast unit tests (run before every commit):
 ```bash
-npm test
+npm test  # Fast unit tests
 ```
 
-### Statistical Validation
+### Validation (Optional)
 
-The library includes optional validation scripts to verify the statistical properties of the RNG. These are **not required for deployment** but can be run when:
-- Making changes to the shuffle algorithm
-- Investigating distribution concerns
-- Before major releases
-- For peace of mind
+Verify RNG statistical properties when making algorithm changes or before releases:
 
-**Coverage validation** (verifies all values are reachable):
 ```bash
-npm run validate:coverage           # Quick test (3 deck sizes, ~1 second)
-npm run validate:comprehensive      # Comprehensive test (8 deck sizes, ~10 seconds)
+npm run validate:quick          # Coverage test (~1s)
+npm run validate:distribution   # Uniformity test (~30s)
+npm run validate:all            # All tests
 ```
 
-**Distribution validation** (chi-square goodness-of-fit test):
-```bash
-npm run validate:distribution       # Statistical uniformity test (~30 seconds)
-npm run validate:distribution -- --draws 50000  # More thorough test
-```
+**Coverage** - Verifies all values are reachable (no stuck values)  
+**Distribution** - Chi-square uniformity test (has ~5% false positive rate)
 
-**Run all validations:**
-```bash
-npm run validate:all                # Coverage + distribution tests
-```
+## Related Projects
 
-The validation scripts verify different aspects of randomness:
+- [obsidian-tarot-practice](https://github.com/w8s/obsidian-tarot-practice) - Obsidian plugin for tarot readings using this library
+- [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) - Public domain divination decks (Runes, Lenormand, I Ching)
 
-**Coverage validation** checks that all values are **reachable** (no stuck values):
-- Verifies every possible value can be drawn at least once
-- Catches: off-by-one errors, range bugs, unreachable values
-- Does NOT verify: equal probability distribution
+## Changelog
 
-**Distribution validation** checks that all values are **equally likely** (uniform distribution):
-- Uses chi-square goodness-of-fit test
-- Catches: probability bias, non-uniform distributions
-- Note: Has ~5% false positive rate (expected statistical noise)
-
-Both tests together provide confidence that the RNG works correctly.
-
-These tests are slow because they perform thousands of draws to achieve statistical significance, which is why they're separate from the main test suite.
+See [CHANGELOG.md](./CHANGELOG.md) for version history and release notes.
 
 ## License
 
