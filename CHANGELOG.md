@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-06-03
+
+### Added
+- TypeScript declarations (`src/index.d.ts`) — `RngWithIntention`, `RngWithIntentionOptions`, `DrawResult`, and `DrawMultipleResult` are now fully typed
+- `types` field in `package.json` pointing to the declaration file
+
 ## [0.3.0] - 2026-01-30
 
 ### Changed
