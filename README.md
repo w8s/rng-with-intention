@@ -5,16 +5,21 @@
 [![Test](https://github.com/w8s/rng-with-intention/actions/workflows/test.yml/badge.svg)](https://github.com/w8s/rng-with-intention/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A random number generator that uses human intention as a seed, designed for divination and contemplative practices.
+A random number generator seeded by human intention, designed for divination and contemplative practices.
 
 ## Philosophy
 
 Digital randomness often feels hollow in spiritual or contemplative contexts because it lacks the intentionality present in physical practices like shuffling tarot cards or casting runes. This library bridges that gap by:
 
-1. **Using intention as the primary input** - Your words, thoughts, or questions become part of the randomness
-2. **Capturing the precise moment** - The exact millisecond you submit your intention matters
-3. **Remaining ephemeral** - Intentions are never stored, only used to seed that single moment
-4. **Adding true randomness** - System entropy ensures the same intention at different moments produces different results
+1. **Using intention as the primary input** — Your words, thoughts, or questions become part of the seed
+2. **Capturing the precise moment** — The exact millisecond you submit your intention matters
+3. **Remaining ephemeral** — Intentions are never stored, only used to seed that single draw
+4. **Adding true randomness** — System entropy ensures the same intention at different moments produces different results
+
+## Requirements
+
+- Node.js >= 18.0.0
+- Works in browser and Node.js environments (uses Web Crypto API / Node.js crypto)
 
 ## Installation
 
@@ -22,133 +27,129 @@ Digital randomness often feels hollow in spiritual or contemplative contexts bec
 npm install rng-with-intention
 ```
 
-## Requirements
+## Quick Start
 
-- Node.js >= 18.0.0
-- Works in browser and Node.js environments (uses Web Crypto API / Node crypto)
+```javascript
+import { RngWithIntention } from 'rng-with-intention';
+
+const rngi = new RngWithIntention();
+const result = await rngi.draw("What do I need to know today?", 78);
+console.log(result);
+// { index: 42, timestamp: '2025-06-07T14:23:11.847Z' }
+```
 
 ## Usage
 
-### Basic usage
+### Single draw
 
 ```javascript
 import { RngWithIntention } from 'rng-with-intention';
 
 const rngi = new RngWithIntention();
 
-// Draw a single card from a 78-card tarot deck
-const result = rngi.draw("What do I need to know today?", 78);
-console.log(result);
-// { index: 42, timestamp: '2024-12-31T09:47:23.847Z' }
+// Draw one card from a 78-card tarot deck (returns index 0–77)
+const result = await rngi.draw("What do I need to know today?", 78);
+console.log(result.index);     // e.g. 42
+console.log(result.timestamp); // ISO 8601 timestamp
 ```
 
-### Drawing multiple values
+### Multiple draws
 
 ```javascript
-// Draw a 3-card spread
-const spread = rngi.drawMultiple("Past, present, future", 78, 3);
-console.log(spread);
-// { indices: [5, 32, 67], timestamp: '2024-12-31T09:47:23.847Z' }
+// Draw a 3-card spread (duplicates allowed by default)
+const spread = await rngi.drawMultiple("Past, present, future", 78, 3);
+console.log(spread.indices); // e.g. [5, 32, 67]
 
-// Draw unique cards (no duplicates)
-const uniqueSpread = rngi.drawMultiple("Celtic Cross", 78, 10, false);
+// Draw unique cards — no duplicates
+const celtic = await rngi.drawMultiple("Celtic Cross", 78, 10, false);
 ```
 
-### Configuration options
+### TypeScript
+
+```typescript
+import { RngWithIntention, DrawResult, DrawMultipleResult } from 'rng-with-intention';
+
+const rngi = new RngWithIntention();
+
+const card: DrawResult = await rngi.draw("What needs my attention?", 78);
+const spread: DrawMultipleResult = await rngi.drawMultiple("Week ahead", 78, 3, false);
+```
+
+### Deterministic mode
 
 ```javascript
-// Disable timestamp (makes draws deterministic for same intention)
-const deterministicRng = new RngWithIntention({
+// Disable timestamp and entropy for reproducible draws
+const rngi = new RngWithIntention({
   includeTimestamp: false,
   includeEntropy: false
 });
 
-// Same intention will always produce same result
-const result1 = deterministicRng.draw("test", 100);
-const result2 = deterministicRng.draw("test", 100);
-// result1.index === result2.index (always true)
+// Same intention always produces the same result
+const a = await rngi.draw("test", 100);
+const b = await rngi.draw("test", 100);
+// a.index === b.index (always true)
 ```
 
 ## API
 
-### `new RngWithIntention(options)`
+### `new RngWithIntention(options?)`
 
-Create a new instance with optional configuration.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `includeTimestamp` | `boolean` | `true` | Include current timestamp in seed |
+| `includeEntropy` | `boolean` | `true` | Include cryptographic system entropy in seed |
 
-**Options:**
-- `includeTimestamp` (boolean, default: `true`) - Include timestamp in seed
-- `includeEntropy` (boolean, default: `true`) - Include cryptographic randomness in seed
+### `draw(intention, max): Promise<DrawResult>`
 
-### `draw(intention, max)`
+Draw a single random index.
 
-Draw a single random number.
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `intention` | `string` | Your question, focus, or intention |
+| `max` | `number` | Upper bound (exclusive) — returns index in `[0, max)` |
 
-**Parameters:**
-- `intention` (string, required) - Your intention, question, or focus
-- `max` (number, required) - Maximum value (exclusive, returns 0 to max-1)
+Returns `{ index: number, timestamp: string }`.
 
-**Returns:**
-- `{ index: number, timestamp: string }`
+### `drawMultiple(intention, max, count, allowDuplicates?): Promise<DrawMultipleResult>`
 
-### `drawMultiple(intention, max, count, allowDuplicates)`
+Draw multiple random indices with a single intention.
 
-Draw multiple random numbers with a single intention.
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `intention` | `string` | — | Your question, focus, or intention |
+| `max` | `number` | — | Upper bound (exclusive) |
+| `count` | `number` | — | Number of indices to draw |
+| `allowDuplicates` | `boolean` | `true` | Whether the same index may appear more than once |
 
-**Parameters:**
-- `intention` (string, required) - Your intention
-- `max` (number, required) - Maximum value for each draw
-- `count` (number, required) - Number of values to draw
-- `allowDuplicates` (boolean, default: `true`) - Whether to allow repeated indices
-
-**Returns:**
-- `{ indices: number[], timestamp: string }`
+Returns `{ indices: number[], timestamp: string }`.
 
 ## Use Cases
 
-- **Tarot readings** - Digital card draws with intentionality
-- **Oracle cards** - Any deck-based divination system
-- **I Ching** - Hexagram generation
-- **Rune casting** - Random rune selection
-- **Creative constraints** - Intentional prompts for writing, art, music
-- **Journaling** - Daily prompts seeded by your current state
-- **Decision making** - When you need the universe to weigh in
+- **Tarot** — Digital card draws with intentionality
+- **Oracle cards** — Any deck-based divination system
+- **I Ching** — Hexagram generation
+- **Rune casting** — Random rune selection
+- **Creative constraints** — Intentional prompts for writing, art, or music
+- **Journaling** — Daily prompts seeded by your current state
 
 ## Development
 
-### Testing
-
 ```bash
-npm test  # Fast unit tests
+npm test                        # Unit tests (Node 18, 20, 22)
+npm run validate:quick          # RNG coverage check (~1s)
+npm run validate:distribution   # Chi-square uniformity test (~30s)
+npm run validate:all            # All validation
 ```
-
-### Validation (Optional)
-
-Verify RNG statistical properties when making algorithm changes or before releases:
-
-```bash
-npm run validate:quick          # Coverage test (~1s)
-npm run validate:distribution   # Uniformity test (~30s)
-npm run validate:all            # All tests
-```
-
-**Coverage** - Verifies all values are reachable (no stuck values)  
-**Distribution** - Chi-square uniformity test (has ~5% false positive rate)
 
 ## Related Projects
 
-- [obsidian-tarot-practice](https://github.com/w8s/obsidian-tarot-practice) - Obsidian plugin for tarot readings using this library
-- [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) - Public domain divination decks (Runes, Lenormand, I Ching)
+- [obsidian-tarot-practice](https://github.com/w8s/obsidian-tarot-practice) — Obsidian plugin for tarot readings using this library
+- [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) — Public domain divination decks (Runes, Lenormand, I Ching)
 
 ## Changelog
 
-See [CHANGELOG.md](./CHANGELOG.md) for version history and release notes.
+See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
 ## License
 
 MIT
-
-## Contributing
-
-Issues and pull requests welcome! This library aims to remain simple and focused.
-
-For development context and patterns, see [docs/AGENTS.md](./docs/AGENTS.md).
