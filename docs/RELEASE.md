@@ -4,82 +4,52 @@ This document describes how to create a new release for rng-with-intention.
 
 ## Prerequisites
 
-- Ensure all changes are committed and pushed to `main`
-- Ensure tests pass locally: `npm test`
-- Update CHANGELOG.md with new version section
-- Have NPM_TOKEN configured in GitHub Secrets (one-time setup)
+- All changes committed and pushed to `main`
+- Tests passing locally: `npm test`
+- `CHANGELOG.md` updated with new version section
+- npm Trusted Publishing configured (no token needed — uses OIDC)
 
-## Automated Release Steps (Recommended)
+## Release Steps
 
-### 1. Update Version and Push Tag
+### 1. Update the changelog
+
+Add a new section to `CHANGELOG.md` following Keep a Changelog format:
+
+```markdown
+## [0.4.0] - 2025-06-07
+
+### Added
+- ...
+
+### Fixed
+- ...
+```
+
+Also update the tag links at the bottom of `CHANGELOG.md`:
+
+```markdown
+[Unreleased]: https://github.com/w8s/rng-with-intention/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/w8s/rng-with-intention/compare/v0.3.3...v0.4.0
+```
+
+### 2. Bump version and push tag
 
 ```bash
-# Bump version in package.json (choose one)
-npm version patch   # 0.2.2 -> 0.2.3 (bug fixes)
-npm version minor   # 0.2.2 -> 0.3.0 (new features)
-npm version major   # 0.2.2 -> 1.0.0 (breaking changes)
+npm version patch   # 0.3.3 -> 0.3.4 (bug fixes)
+npm version minor   # 0.3.3 -> 0.4.0 (new features)
+npm version major   # 0.3.3 -> 1.0.0 (breaking changes)
 
-# Push to GitHub with tags
 git push origin main --tags
 ```
 
-### 2. GitHub Actions Take Over! 🤖
+### 3. Automation takes over 🤖
 
-Once you push the tag, three automated workflows run:
+Pushing a `v*` tag triggers two workflows in parallel:
 
-1. **Test Workflow** - Runs tests on Node 18, 20, 22
-2. **Publish Workflow** - Publishes to npm (if tests pass)
-3. **Release Workflow** - Creates GitHub release with auto-generated notes
+1. **Publish workflow** — runs tests, then publishes to npm via Trusted Publishing
+2. **Release workflow** — creates a GitHub Release with notes extracted from `CHANGELOG.md`
 
-That's it! Everything else is automatic.
-
-## Manual Release Steps (Fallback)
-
-If automation fails or you prefer manual control:
-
-```bash
-# Bump version in package.json (choose one)
-npm version patch   # 0.2.2 -> 0.2.3 (bug fixes)
-npm version minor   # 0.2.2 -> 0.3.0 (new features)
-npm version major   # 0.2.2 -> 1.0.0 (breaking changes)
-
-# This automatically:
-# - Updates package.json version
-# - Creates a git commit
-# - Creates a git tag
-```
-
-### 2. Push to GitHub
-
-```bash
-git push origin main --tags
-```
-
-### 3. Publish to npm
-
-```bash
-npm publish
-```
-
-### 4. Create GitHub Release
-
-```bash
-# Let GitHub auto-generate release notes from commits
-gh release create vX.X.X --generate-notes
-
-# Or create with custom notes
-gh release create vX.X.X \
-  --title "vX.X.X - Title" \
-  --notes "## What's New
-
-### Added/Fixed/Changed
-- Feature or fix description
-
----
-
-**Install:** \`npm install rng-with-intention\`  
-**npm package:** https://www.npmjs.com/package/rng-with-intention"
-```
+Monitor at: https://github.com/w8s/rng-with-intention/actions
 
 ## Version Numbering
 
@@ -91,15 +61,15 @@ Following [Semantic Versioning](https://semver.org/):
 
 ## Checklist
 
-- [ ] All tests pass
-- [ ] CHANGELOG.md updated
+- [ ] `CHANGELOG.md` updated with new version section and tag links
+- [ ] Tests pass locally (`npm test`)
 - [ ] Version bumped with `npm version`
-- [ ] Changes pushed to GitHub (with tags)
-- [ ] Published to npm
-- [ ] GitHub release created
-- [ ] Release notes reviewed
+- [ ] Pushed to GitHub with tags (`git push origin main --tags`)
+- [ ] Publish workflow completes successfully
+- [ ] GitHub Release created with correct changelog notes
 
 ## Links
 
 - npm package: https://www.npmjs.com/package/rng-with-intention
 - GitHub releases: https://github.com/w8s/rng-with-intention/releases
+- GitHub Actions: https://github.com/w8s/rng-with-intention/actions

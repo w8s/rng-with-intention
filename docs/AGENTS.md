@@ -5,7 +5,7 @@ This document provides context for AI agents working on rng-with-intention.
 ## Project Context
 
 **Purpose**: Random number generator using human intention as a seed for divination and contemplative practices  
-**Current Version**: 0.3.2  
+**Current Version**: 0.3.3  
 **Tech Stack**: JavaScript (ES modules), Web Crypto API, Node.js crypto  
 **Primary Use Case**: Obsidian Tarot Practice plugin and similar divination tools
 
@@ -172,7 +172,7 @@ Statistical tests require thousands of iterations and have inherent false positi
 ```javascript
 const rngi = new RngWithIntention();
 const result = await rngi.draw("What do I need to know?", 78);
-// Returns: { index: 42, timestamp: '2024-12-31T09:47:23.847Z' }
+// Returns: { index: 42, timestamp: '2025-06-07T14:23:11.847Z' }
 ```
 
 ### Drawing Multiple Values
