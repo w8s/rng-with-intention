@@ -13,12 +13,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TypeScript declarations (`src/index.d.ts`) — `RngWithIntention`, `RngWithIntentionOptions`, `DrawResult`, and `DrawMultipleResult` are now fully typed
 - `types` field in `package.json` pointing to the declaration file
 
-## [0.3.0] - 2026-01-30
+## [0.3.2] - 2026-01-30
+
+First version published to npm since 0.2.2. It contains the library changes listed under 0.3.0 below.
+
+### Fixed
+- Publish workflow upgrades npm to a version that supports npm Trusted Publishing
+
+## [0.3.1] - 2026-01-30
+
+No npm release; this version exists only as a git tag. The library code is unchanged from 0.3.0.
 
 ### Changed
-- **BREAKING CHANGE**: `randomBytes()` is now async and returns `Promise<Uint8Array>`
-  - Call sites must now use `await randomBytes(size)` instead of `randomBytes(size)`
+- Publish workflow migrated to npm Trusted Publishing (no token required)
+
+## [0.3.0] - 2026-01-30
+
+No npm release; this version exists only as a git tag. Its changes reached npm in 0.3.2.
+
+### Changed
+- The internal `randomBytes()` helper is now async and returns `Promise<Uint8Array>`
   - This change is required for proper mobile/browser compatibility
+  - Not a breaking change for consumers: the package exports only `RngWithIntention`, so the helper was never part of the public API
 
 ### Fixed
 - Restored mobile compatibility by using dynamic `import()` for Node.js crypto module
@@ -64,7 +80,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Node.js support (v18+)
 
 [Unreleased]: https://github.com/w8s/rng-with-intention/compare/v0.3.3...HEAD
-[0.3.3]: https://github.com/w8s/rng-with-intention/compare/v0.3.0...v0.3.3
+[0.3.3]: https://github.com/w8s/rng-with-intention/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/w8s/rng-with-intention/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/w8s/rng-with-intention/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/w8s/rng-with-intention/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/w8s/rng-with-intention/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/w8s/rng-with-intention/compare/v0.2.0...v0.2.1
