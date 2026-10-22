@@ -110,6 +110,21 @@ export class RngWithIntention {
           index = retry.index;
           attempts++;
         }
+
+        if (used.has(index)) {
+          // The retry cap ran out while every retry landed on a used index.
+          // Rather than return a duplicate, pick among the indices still unused.
+          // Draws before this point are untouched, so results that never reach
+          // the cap are identical to earlier versions. This extra draw is
+          // deterministic too: it hashes its own suffix like every other draw.
+          const unused = [];
+          for (let candidate = 0; candidate < max; candidate++) {
+            if (!used.has(candidate)) unused.push(candidate);
+          }
+          const pick = await this.draw(`${modifiedIntention}::unused`, unused.length);
+          index = unused[pick.index];
+        }
+
         used.add(index);
         indices.push(index);
       }

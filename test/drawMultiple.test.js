@@ -42,6 +42,34 @@ test('drawMultiple functionality', async (t) => {
     assert.equal(unique.size, 10);
   });
 
+  await t.test('unique draws of every value are a permutation, never a duplicate', async () => {
+    // Deterministic mode, so the outcome depends only on the intention string.
+    // count == max forces the last draws to collide with already-used indices,
+    // which exercises the retry cap. Expected values are literals, not derived.
+    const rngi = new RngWithIntention({
+      includeTimestamp: false,
+      includeEntropy: false
+    });
+
+    const cases = [
+      { max: 5, expected: [0, 1, 2, 3, 4] },
+      { max: 3, expected: [0, 1, 2] },
+      { max: 2, expected: [0, 1] }
+    ];
+
+    for (const { max, expected } of cases) {
+      for (let i = 0; i < 200; i++) {
+        const result = await rngi.drawMultiple(`permutation ${i}`, max, max, false);
+        const sorted = [...result.indices].sort((a, b) => a - b);
+        assert.deepStrictEqual(
+          sorted,
+          expected,
+          `max ${max}, intention "permutation ${i}" returned ${JSON.stringify(result.indices)}`
+        );
+      }
+    }
+  });
+
   await t.test('throws error when drawing more unique values than possible', async () => {
     const rngi = new RngWithIntention();
     await assert.rejects(
