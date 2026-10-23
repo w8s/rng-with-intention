@@ -1,4 +1,5 @@
 import { randomBytes, sha256, bytesToHex, readUInt32BE } from './crypto-polyfill.js';
+import { reduceToIndex } from './reduction.js';
 
 /**
  * RngWithIntention - A random number generator seeded by human intention
@@ -64,8 +65,7 @@ export class RngWithIntention {
     
     // Convert hash bytes to a number in range [0, max)
     // Use multiple bytes to reduce modulo bias
-    const bytes = readUInt32BE(hash, 0);
-    const index = bytes % max;
+    const index = await reduceToIndex(max, () => readUInt32BE(hash, 0));
     
     return {
       index,
