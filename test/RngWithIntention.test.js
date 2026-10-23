@@ -42,4 +42,32 @@ test('RngWithIntention basic functionality', async (t) => {
     await assert.rejects(async () => await rngi.draw('test', -1), /Max must be a positive integer/);
     await assert.rejects(async () => await rngi.draw('test', 1.5), /Max must be a positive integer/);
   });
+
+  await t.test('rejects a max that is not a positive integer, whatever it is', async () => {
+    const rngi = new RngWithIntention();
+    // NaN and Infinity are numbers but not integers. A numeric string is not a number.
+    // Undefined is what a caller passes when they forget the argument.
+    const badMaxes = [NaN, Infinity, -Infinity, '5', undefined, null];
+
+    for (const max of badMaxes) {
+      await assert.rejects(
+        async () => await rngi.draw('test', max),
+        /Max must be a positive integer/,
+        `max ${String(max)} should be rejected`
+      );
+    }
+  });
+
+  await t.test('rejects an intention that is not a string', async () => {
+    const rngi = new RngWithIntention();
+    const badIntentions = [42, undefined, {}, ['a'], true];
+
+    for (const intention of badIntentions) {
+      await assert.rejects(
+        async () => await rngi.draw(intention, 78),
+        /Intention must be a non-empty string/,
+        `intention ${JSON.stringify(intention)} should be rejected`
+      );
+    }
+  });
 });
