@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { RngWithIntention } from '../src/RngWithIntention.js';
+import { freezeClock } from './helpers/controls.js';
 
 test('drawMultiple functionality', async (t) => {
   await t.test('draws multiple indices', async () => {
@@ -83,5 +84,41 @@ test('drawMultiple functionality', async (t) => {
     await assert.rejects(async () => await rngi.drawMultiple('test', 78, 0), /Count must be a positive integer/);
     await assert.rejects(async () => await rngi.drawMultiple('test', 78, -1), /Count must be a positive integer/);
     await assert.rejects(async () => await rngi.drawMultiple('test', 78, 1.5), /Count must be a positive integer/);
+  });
+
+  await t.test('returns its timestamp as an ISO 8601 UTC string', async (sub) => {
+    // The clock is frozen at 2026-01-01T00:00:00.000Z (see helpers/controls.js), so the
+    // expected value is a literal: UTC, millisecond precision, trailing Z.
+    freezeClock(sub);
+    const rngi = new RngWithIntention();
+
+    const result = await rngi.drawMultiple('three card spread', 78, 3);
+
+    assert.equal(result.timestamp, '2026-01-01T00:00:00.000Z');
+  });
+
+  await t.test('rejects a max that is not a positive integer', async () => {
+    const rngi = new RngWithIntention();
+    const badMaxes = [0, -1, 1.5, NaN, Infinity, '5'];
+
+    // Duplicates allowed: only the max check can fire, so its message is pinned.
+    for (const max of badMaxes) {
+      await assert.rejects(
+        async () => await rngi.drawMultiple('test', max, 2),
+        /Max must be a positive integer/,
+        `max ${String(max)} should be rejected`
+      );
+    }
+
+    // Unique mode: the count-versus-max check can also fire (for 0, -1 and 1.5), so
+    // only the rejection is pinned, not which message. Pinning the message would pin
+    // the order the checks happen to run in.
+    for (const max of badMaxes) {
+      await assert.rejects(
+        async () => await rngi.drawMultiple('test', max, 2, false),
+        Error,
+        `max ${String(max)} should be rejected in unique mode`
+      );
+    }
   });
 });
