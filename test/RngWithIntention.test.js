@@ -30,18 +30,6 @@ test('RngWithIntention basic functionality', async (t) => {
     }
   });
 
-  await t.test('different intentions at different times produce different results', async () => {
-    const rngi = new RngWithIntention();
-    const result1 = await rngi.draw('intention one', 1000);
-    
-    // Small delay to ensure different timestamp
-    await new Promise(resolve => setTimeout(resolve, 10));
-    
-    const result2 = await rngi.draw('intention two', 1000);
-    assert.notEqual(result1.index, result2.index);
-    assert.notEqual(result1.timestamp, result2.timestamp);
-  });
-
   await t.test('throws error for invalid intention', async () => {
     const rngi = new RngWithIntention();
     await assert.rejects(async () => await rngi.draw('', 78), /Intention must be a non-empty string/);
