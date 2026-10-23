@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-10-22
+
+### Fixed
+- `drawMultiple(..., false)` could return duplicate indices when most or all of the range was requested (for example 10 of 10), because the retry loop gave up after `max * 2` attempts and pushed a duplicate anyway. It now draws among the still-unused indices instead.
+  - Results that never reached the retry cap are unchanged, so deterministic mode returns the same indices as before in those cases.
+
+### Documentation
+- Reconciled this changelog with the npm history: added 0.3.2, marked 0.3.0 and 0.3.1 as git tags with no npm release, and corrected the BREAKING label on the internal `randomBytes()` helper.
+
 ## [0.3.3] - 2026-06-03
 
 ### Added
@@ -79,7 +88,8 @@ No npm release; this version exists only as a git tag. Its changes reached npm i
 - Comprehensive documentation and examples
 - Node.js support (v18+)
 
-[Unreleased]: https://github.com/w8s/rng-with-intention/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/w8s/rng-with-intention/compare/v0.3.4...HEAD
+[0.3.4]: https://github.com/w8s/rng-with-intention/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/w8s/rng-with-intention/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/w8s/rng-with-intention/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/w8s/rng-with-intention/compare/v0.3.0...v0.3.1
