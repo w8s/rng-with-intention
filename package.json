@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "test": "node --test test/*.test.js",
+    "check:package": "bash scripts/check-package.sh",
     "validate:distribution": "node benchmark/validate-distribution.js",
     "validate:coverage": "node scripts/validate-coverage.js",
     "validate:quick": "node scripts/validate-coverage.js --quick",
@@ -40,5 +41,10 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "publint": "0.3.25",
+    "typescript": "6.0.3"
   }
 }
