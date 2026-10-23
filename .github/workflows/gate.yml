@@ -1,0 +1,53 @@
+name: Gate
+
+# The one definition of "passing". test.yml (every push and pull request to main)
+# and publish.yml (every release tag) both call this workflow, so a release is
+# held to exactly the checks a pull request is.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [22.x, 24.x, 26.x]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+  package:
+    # Checks the tarball that would be uploaded to npm, once, on the oldest
+    # supported Node line. See scripts/check-package.sh for what each step proves.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check the package
+        run: npm run check:package
