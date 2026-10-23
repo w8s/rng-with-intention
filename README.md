@@ -18,7 +18,7 @@ Digital randomness often feels hollow in spiritual or contemplative contexts bec
 
 ## Requirements
 
-- Node.js >= 18.0.0
+- Node.js >= 18.0.0 (0.3.4 is the last 0.3.x release; the next release raises the minimum Node version and 0.3.x gets no backports)
 - Works in browser and Node.js environments (uses Web Crypto API / Node.js crypto)
 
 ## Installation

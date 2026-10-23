@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Notes
+- 0.3.4 is the last 0.3.x release. There are no backports to 0.3.x and no `npm deprecate`; further changes ship in 0.4.0, which raises the minimum Node version.
+
 ## [0.3.4] - 2026-10-22
 
 ### Fixed
@@ -31,14 +34,14 @@ First version published to npm since 0.2.2. It contains the library changes list
 
 ## [0.3.1] - 2026-01-30
 
-No npm release; this version exists only as a git tag. The library code is unchanged from 0.3.0.
+No npm release; this version exists only as a git tag and a GitHub Release. The library code is unchanged from 0.3.0.
 
 ### Changed
 - Publish workflow migrated to npm Trusted Publishing (no token required)
 
 ## [0.3.0] - 2026-01-30
 
-No npm release; this version exists only as a git tag. Its changes reached npm in 0.3.2.
+No npm release; this version exists only as a git tag and a GitHub Release. Its changes reached npm in 0.3.2.
 
 ### Changed
 - The internal `randomBytes()` helper is now async and returns `Promise<Uint8Array>`

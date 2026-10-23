@@ -7,6 +7,8 @@
 | 0.3.x   | ✅        |
 | < 0.3   | ❌        |
 
+0.3.4 is the last 0.3.x release. Fixes are not backported to 0.3.x; they ship in the next release.
+
 ## Reporting a Vulnerability
 
 Please **do not** open a public GitHub issue for security vulnerabilities.
